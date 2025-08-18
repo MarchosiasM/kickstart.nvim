@@ -94,7 +94,6 @@ P.S. You can delete this when you're done too. It's your config now! :)
   --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
   vim.g.mapleader = ' '
   vim.g.maplocalleader = ' '
-
   -- Set to true if you have a Nerd Font installed and selected in the terminal
   vim.g.have_nerd_font = true
 
@@ -191,6 +190,16 @@ P.S. You can delete this when you're done too. It's your config now! :)
   -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
   -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+    callback = function()
+      vim.opt_local.tabstop = 2
+      vim.opt_local.shiftwidth = 2
+      vim.opt_local.softtabstop = 2
+      vim.opt_local.expandtab = true
+    end,
+  })
+
   -- Keybinds to make split navigation easier.
   --  Use CTRL+<hjkl> to switch between windows
   --
@@ -199,6 +208,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
   vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
   vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
   vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+  vim.keymap.set('n', '<leader>pv', ':Explore<CR>', { desc = 'Open [P]roject [V]iew' })
 
   -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
   -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -246,7 +256,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
   require('lazy').setup({
     -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
     'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
+    'rcarriga/nvim-notify',
     -- NOTE: Plugins can also be added by using a table,
     -- with the first argument being the link and the following
     -- keys can be used to configure plugin behavior/loading/etc.
@@ -367,7 +377,10 @@ P.S. You can delete this when you're done too. It's your config now! :)
     -- you do for a plugin at the top level, you can do for a dependency.
     --
     -- Use the `dependencies` key to specify the dependencies of a particular plugin
-
+    {
+      'sphamba/smear-cursor.nvim',
+      opts = {},
+    },
     {
       'nvim-telescope/telescope.nvim',
       event = 'VimEnter',
@@ -471,10 +484,28 @@ P.S. You can delete this when you're done too. It's your config now! :)
       },
     },
     {
+      'CopilotC-Nvim/CopilotChat.nvim',
+      dependencies = {
+        { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
+        { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
+      },
+      build = 'make tiktoken', -- Only on MacOS or Linux
+      opts = {
+        agent = 'copilot', -- See Configuration section for options
+        mappings = {
+          submit_prompt = {
+            normal = '<Leader>s',
+            insert = '<C-s>',
+          },
+          show_diff = {
+            full_diff = true,
+          },
+        },
+      },
+      -- See Commands section for default commands if you want to lazy load on them
+    },
+    {
       'github/copilot.vim',
-      cond = function()
-        return not vim.g.vscode
-      end,
       enabled = true,
       cmd = 'Copilot',
       event = 'InsertEnter',
@@ -673,7 +704,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
         --
         --  Add any additional override configuration in the following tables. Available keys are:
         --  - cmd (table): Override the default command used to start the server
-        --  - filetypes (table): Override the default list of associated filetypes for the server
+        --  - filetypes (table): Override the default list of associatedfiletypes for the server
         --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
         --  - settings (table): Override the default settings passed when initializing the server.
         --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
@@ -689,8 +720,11 @@ P.S. You can delete this when you're done too. It's your config now! :)
           --
           -- But for many setups, the LSP (`ts_ls`) will work just fine
           ts_ls = {},
-          --
-
+          zls = {},
+          jsonls = {},
+          -- codelldb = {},
+          -- htmx-lsp = {},
+          stylua = {},
           lua_ls = {
             -- cmd = { ... },
             -- filetypes = { ... },
@@ -817,10 +851,6 @@ P.S. You can delete this when you're done too. It's your config now! :)
         },
         'folke/lazydev.nvim',
       },
-      {
-        'sphamba/smear-cursor.nvim',
-        opts = {},
-      },
       --- @module 'blink.cmp'
       --- @type blink.cmp.Config
       opts = {
@@ -866,6 +896,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
 
         sources = {
           default = { 'lsp', 'path', 'snippets', 'lazydev' },
+
           providers = {
             lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
           },
@@ -949,6 +980,12 @@ P.S. You can delete this when you're done too. It's your config now! :)
         --  Check out: https://github.com/echasnovski/mini.nvim
       end,
     },
+    {
+      'm4xshen/hardtime.nvim',
+      lazy = false,
+      dependencies = { 'MunifTanjim/nui.nvim' },
+      opts = {},
+    },
     { -- Highlight, edit, and navigate code
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
@@ -1023,6 +1060,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
     },
   })
 
+  vim.notify = require 'notify'
   -- The line beneath this is called `modeline`. See `:help modeline`
   -- vim: ts=2 sts=2 sw=2 et
 end
