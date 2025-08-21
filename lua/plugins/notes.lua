@@ -9,10 +9,10 @@ return {
       'nvim-lua/plenary.nvim',
     },
     opts = {
-      home = vim.fn.expand("~/zettelkasten"), -- Your notes directory
-      dailies = vim.fn.expand("~/zettelkasten/daily"), -- Daily notes
-      weeklies = vim.fn.expand("~/zettelkasten/weekly"), -- Weekly notes
-      templates = vim.fn.expand("~/zettelkasten/templates"), -- Templates
+      home = vim.fn.expand("~/Documents/Notes/zettelkasten"), -- Your notes directory
+      dailies = vim.fn.expand("~/Documents/Notes/zettelkasten/daily"), -- Daily notes
+      weeklies = vim.fn.expand("~/Documents/Notes/zettelkasten/weekly"), -- Weekly notes
+      templates = vim.fn.expand("~/Documents/Notes/zettelkasten/.telekasten/templates"), -- Templates
 
       -- File extension for notes
       extension = ".md",
@@ -85,7 +85,13 @@ Tags: #
       image_subdir = "img",
       
       -- Calendar integration
+      plug_into_calendar = true,
       calendar_monday = 1,
+      calendar_opts = {
+        weekdayHeader = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+        calendar_monday = 1,
+        calendar_mark = "left-fit",
+      },
 
       -- Tag notation
       tag_notation = "#tag",
@@ -159,7 +165,7 @@ Tags: #
         end)
       end, { desc = '[Z]ettelkasten [P]erson/coworker note' })
       
-      -- Daily and weekly notes with templates  
+      -- Daily note with task rollover
       map('n', '<leader>zd', function()
         local telekasten = require('telekasten')
         local today = os.date('%Y-%m-%d')
@@ -170,44 +176,82 @@ Tags: #
           -- File exists, just open it
           telekasten.goto_today()
         else
-          -- File doesn't exist, create with template
-          vim.cmd('edit ' .. daily_path)
-          
-          -- Apply the daily template manually
-          local template = telekasten.Cfg.template_new_daily
-          if template then
-            local lines = vim.split(template, '\n')
-            
-            -- Substitute template variables
-            local today_formatted = os.date('%Y-%m-%d')
-            for i, line in ipairs(lines) do
-              lines[i] = line:gsub('{{date}}', today_formatted)
-              lines[i] = lines[i]:gsub('{{cursor}}', '')
-            end
-            
-            -- Insert the template content
-            vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-            
-            -- Find cursor position and place cursor there
-            for i, line in ipairs(lines) do
-              if line == '' and lines[i-1] and lines[i-1]:match('Notes') then
-                vim.api.nvim_win_set_cursor(0, {i, 0})
-                break
+          -- Ask if user wants task rollover
+          vim.ui.select({'Yes, with task rollover', 'No, clean template'}, {
+            prompt = 'Create today\'s daily note:',
+          }, function(choice)
+            if choice and choice:match('Yes') then
+              -- Use enhanced daily note creation with rollover
+              local rollover = require('daily-task-rollover')
+              rollover.create_daily_with_rollover()
+            else
+              -- Use standard template (original behavior)
+              vim.cmd('edit ' .. daily_path)
+              local template = telekasten.Cfg.template_new_daily
+              if template then
+                local lines = vim.split(template, '\n')
+                local today_formatted = os.date('%Y-%m-%d')
+                for i, line in ipairs(lines) do
+                  lines[i] = line:gsub('{{date}}', today_formatted)
+                  lines[i] = lines[i]:gsub('{{cursor}}', '')
+                end
+                vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+                for i, line in ipairs(lines) do
+                  if line == '' and lines[i-1] and lines[i-1]:match('Notes') then
+                    vim.api.nvim_win_set_cursor(0, {i, 0})
+                    break
+                  end
+                end
               end
             end
-          end
+          end)
         end
-      end, { desc = '[Z]ettelkasten [D]aily note with template' })
+      end, { desc = '[Z]ettelkasten [D]aily note with optional rollover' })
+      
+      -- Manual task rollover command
+      map('n', '<leader>zdr', function()
+        vim.ui.input({prompt = 'Roll over tasks from date (YYYY-MM-DD): '}, function(date)
+          if date and date ~= '' then
+            local rollover = require('daily-task-rollover')
+            rollover.manual_rollover(date)
+          end
+        end)
+      end, { desc = '[Z]ettelkasten [D]aily [R]ollover from specific date' })
       
       map('n', '<leader>zw', '<cmd>Telekasten goto_thisweek<CR>', { desc = '[Z]ettelkasten [W]eekly note' })
       
       -- Linking and navigation
       map('n', '<leader>zl', '<cmd>Telekasten insert_link<CR>', { desc = '[Z]ettelkasten insert [L]ink' })
-      map('n', '<leader>zb', '<cmd>Telekasten show_backlinks<CR>', { desc = '[Z]ettelkasten [B]acklinks' })
+      
+      -- Enhanced backlinks
+      map('n', '<leader>zb', function()
+        local better_backlinks = require('better-backlinks')
+        better_backlinks.show_backlinks()
+      end, { desc = '[Z]ettelkasten [B]acklinks (enhanced)' })
+      
+      map('n', '<leader>zB', function()
+        local better_backlinks = require('better-backlinks')
+        better_backlinks.browse_backlinks()
+      end, { desc = '[Z]ettelkasten [B]rowse backlinks (interactive)' })
+      
+      -- Keep original as fallback
+      map('n', '<leader>zbo', '<cmd>Telekasten show_backlinks<CR>', { desc = '[Z]ettelkasten [B]acklinks (original)' })
+      
       map('n', '<leader>zi', '<cmd>Telekasten paste_img_and_link<CR>', { desc = '[Z]ettelkasten [I]nsert image' })
       
-      -- Tags
-      map('n', '<leader>z#', '<cmd>Telekasten show_tags<CR>', { desc = '[Z]ettelkasten show tags' })
+      -- Tags - Enhanced functionality
+      map('n', '<leader>z#', function()
+        local better_tags = require('better-tags')
+        better_tags.show_tags()
+      end, { desc = '[Z]ettelkasten show tags (enhanced)' })
+      
+      map('n', '<leader>zT', function()
+        local better_tags = require('better-tags')
+        better_tags.search_by_tag()
+      end, { desc = '[Z]ettelkasten search by [T]ag' })
+      
+      -- Keep original telekasten command as fallback
+      map('n', '<leader>z#o', '<cmd>Telekasten show_tags<CR>', { desc = '[Z]ettelkasten show tags (original)' })
       
       -- Calendar (if you want calendar integration)
       map('n', '<leader>zc', '<cmd>Telekasten show_calendar<CR>', { desc = '[Z]ettelkasten [C]alendar' })
@@ -225,13 +269,14 @@ Tags: #
     end,
   },
 
-  -- Optional: Calendar integration for better daily/weekly note navigation
+  -- Calendar integration for Telekasten (required for calendar features)
   {
-    'mattn/calendar-vim',
-    cmd = 'Calendar',
+    'renerocksai/calendar-vim',
+    cmd = { 'Calendar', 'CalendarVR' },
     config = function()
       vim.g.calendar_monday = 1
       vim.g.calendar_weeknm = 1
+      vim.g.calendar_mark = 'left-fit'
     end,
   },
 
