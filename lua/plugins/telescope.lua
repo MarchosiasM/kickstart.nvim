@@ -2,6 +2,7 @@
 return {
   {
     'nvim-telescope/telescope.nvim',
+    branch = '0.1.x', -- Use stable branch with latest fixes
     event = 'VimEnter',
     cond = function()
       return not vim.g.vscode

@@ -48,3 +48,61 @@ vim.keymap.set('n', '<leader>pv', ':Explore<CR>', { desc = 'Open [P]roject [V]ie
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+-- Open hyperlink under cursor with gx
+vim.keymap.set('n', 'gx', function()
+  local function get_url_under_cursor()
+    -- Save cursor position
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    local line = vim.api.nvim_get_current_line()
+    local col = cursor_pos[2]
+    
+    -- Pattern to match URLs
+    local url_pattern = "https?://[%w-._~:/?#[%]@!$&'()*+,;=%%]+"
+    
+    -- Find URL containing cursor position
+    local start_pos = 1
+    while start_pos <= #line do
+      local url_start, url_end = string.find(line, url_pattern, start_pos)
+      if not url_start then
+        break
+      end
+      
+      -- Check if cursor is within this URL (1-indexed to 0-indexed conversion)
+      if col >= url_start - 1 and col <= url_end - 1 then
+        return string.sub(line, url_start, url_end)
+      end
+      
+      start_pos = url_end + 1
+    end
+    
+    return nil
+  end
+
+  local url = get_url_under_cursor()
+  if url then
+    -- Use appropriate command based on OS
+    local open_cmd
+    if vim.fn.has('mac') == 1 then
+      open_cmd = 'open'
+    elseif vim.fn.has('unix') == 1 then
+      open_cmd = 'xdg-open'
+    elseif vim.fn.has('win32') == 1 then
+      open_cmd = 'start'
+    else
+      vim.notify('Unsupported OS for opening URLs', vim.log.levels.ERROR)
+      return
+    end
+    
+    -- Open the URL
+    local handle = io.popen(open_cmd .. ' "' .. url .. '"')
+    if handle then
+      handle:close()
+      vim.notify('Opened: ' .. url, vim.log.levels.INFO)
+    else
+      vim.notify('Failed to open: ' .. url, vim.log.levels.ERROR)
+    end
+  else
+    vim.notify('No URL found under cursor', vim.log.levels.WARN)
+  end
+end, { desc = 'Open URL under cursor' })

@@ -69,6 +69,7 @@ return {
   -- Mini.nvim collection of small plugins
   {
     'echasnovski/mini.nvim',
+    version = false, -- Use latest commit to get bug fixes
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -83,7 +84,11 @@ return {
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      -- Wrap in pcall to handle any API deprecation issues gracefully
+      local ok, _ = pcall(require('mini.surround').setup)
+      if not ok then
+        vim.notify('mini.surround setup failed - consider using nvim-surround instead', vim.log.levels.WARN)
+      end
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -104,4 +109,16 @@ return {
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+
+  -- Backup: nvim-surround (uncomment if mini.surround issues persist)
+  -- {
+  --   'kylechui/nvim-surround',
+  --   version = '*', -- Use for stability; omit to use `main` branch for latest features
+  --   event = 'VeryLazy',
+  --   config = function()
+  --     require('nvim-surround').setup({
+  --       -- Configuration here, or leave empty to use defaults
+  --     })
+  --   end
+  -- },
 }

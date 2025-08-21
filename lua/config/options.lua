@@ -11,6 +11,43 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 vim.o.relativenumber = true
 
+-- Suppress deprecation warnings from third-party plugins
+-- These plugins haven't updated to Neovim 1.0 APIs yet, but functionality still works
+-- Remove this section once plugins are updated (likely mid-2025)
+local function suppress_plugin_warnings()
+  -- Save original vim.deprecate function
+  if not vim._deprecate_original then
+    vim._deprecate_original = vim.deprecate
+  end
+  
+  -- Override vim.deprecate to filter plugin warnings
+  vim.deprecate = function(name, alternative, version, plugin, backtrace)
+    -- List of plugin paths to suppress warnings for
+    local suppress_patterns = {
+      '/lazy/nvim%-notify/',
+      '/lazy/telescope%.nvim/',
+      '/lazy/telekasten%.nvim/', 
+      '/lazy/which%-key%.nvim/',
+      '/lazy/mini%.nvim/',
+    }
+    
+    -- Check if this warning is from a plugin we want to suppress
+    if backtrace then
+      for _, pattern in ipairs(suppress_patterns) do
+        if backtrace:match(pattern) then
+          return -- Suppress this warning
+        end
+      end
+    end
+    
+    -- Show warnings for our own code
+    return vim._deprecate_original(name, alternative, version, plugin, backtrace)
+  end
+end
+
+-- Apply the suppression
+suppress_plugin_warnings()
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
 
