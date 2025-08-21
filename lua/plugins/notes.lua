@@ -235,10 +235,67 @@ Tags: #
     end,
   },
 
+  -- Beautiful in-editor markdown rendering
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    lazy = false, -- Load immediately, not lazy
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      -- Register markdown parser for telekasten filetype
+      vim.treesitter.language.register('markdown', 'telekasten')
+      
+      require('render-markdown').setup({
+        enabled = true, -- Explicitly enable
+        latex = { enabled = false },
+        yaml = { enabled = false },
+        -- Include telekasten filetype!
+        file_types = { 'markdown', 'md', 'telekasten' },
+        -- Keep working checkbox config, try different heading approach
+        heading = {
+          icons = { '● ', '○ ', '▸ ', '▹ ', '▪ ', '▫ ' }, -- Even simpler Unicode symbols
+        },
+        bullet = {
+          icons = { '•', '◦', '▸', '▹' }, -- Simple Unicode bullets
+        },
+        checkbox = {
+          unchecked = { icon = '[ ]' }, -- Simple ASCII - WORKING
+          checked = { icon = '[x]' },   -- Simple ASCII - WORKING
+        },
+        -- Add beautiful wikilink icons for Zettelkasten  
+        link = {
+          enabled = true,
+          wiki = { icon = '🔗 ' }, -- Wikilinks like [[link]]
+          -- You can also add regular links if needed:
+          -- web = { icon = '🌐 ' }, -- Regular web links
+        },
+        -- Alternative approach - try wiki_link as well
+        wiki_link = {
+          enabled = true,
+          icon = '🔗 ',
+        },
+      })
+      
+      -- Ensure render-markdown works with telekasten filetype
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "telekasten",
+        callback = function()
+          -- Trigger render-markdown for telekasten files
+          vim.schedule(function()
+            local rm_ok, rm = pcall(require, 'render-markdown')
+            if rm_ok and rm.enable then
+              rm.enable()
+            end
+          end)
+        end,
+        desc = "Enable render-markdown for telekasten filetype"
+      })
+    end,
+  },
+
   -- Better markdown support with task management - RESTORED
   {
     'ixru/nvim-markdown',
-    ft = 'markdown',
+    ft = { 'markdown', 'telekasten' }, -- Support both markdown and telekasten filetypes
     config = function()
       vim.g.vim_markdown_folding_disabled = 1
       vim.g.vim_markdown_conceal = 0
@@ -252,7 +309,7 @@ Tags: #
       
       -- Override just the problematic gx mapping after plugin loads
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = 'markdown',
+        pattern = { 'markdown', 'telekasten' }, -- Work with both filetypes
         callback = function()
           -- Restore our custom gx mapping that opens URLs
           vim.keymap.set('n', 'gx', function()

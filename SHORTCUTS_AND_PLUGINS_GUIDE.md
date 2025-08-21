@@ -3,9 +3,11 @@
 ## Quick Reference: Keyboard Shortcuts
 
 ### Leader Key
+
 - **Leader Key**: `<Space>` (space bar)
 
 ### Basic Navigation & Window Management
+
 | Shortcut | Description |
 |----------|-------------|
 | `<C-h>` | Move focus to left window |
@@ -15,6 +17,7 @@
 | `<leader>pv` | Open project view (file explorer) |
 
 ### Search & File Operations (Telescope)
+
 | Shortcut | Description |
 |----------|-------------|
 | `<leader>sf` | **[S]earch [F]iles** - Find files in project |
