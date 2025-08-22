@@ -84,7 +84,7 @@ return {
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      -- - sa2wz - [S]urround [A]dd [2] [W]ords with zettelkasten [[]]
+      -- - sa2iwz - [S]urround [A]dd [2] [I]nner [W]ords with zettelkasten [[]]
       -- Wrap in pcall to handle any API deprecation issues gracefully
       local ok, _ = pcall(require('mini.surround').setup, {
         -- Custom surroundings for zettelkasten
