@@ -409,12 +409,11 @@ Tags: #
 
       -- Quick 2-word zettelkasten link (for phrases like "Pharma Eng")
       vim.keymap.set('n', '<leader>z2', function()
-        -- Mark current position, select and yank 2 words, then replace
-        vim.cmd('normal! ma')
-        vim.cmd('normal! v2wy')
+        -- Much simpler: select to end of 2nd word from current position
+        vim.cmd('normal! v2ey')                   -- select to end of 2nd word, yank
         local selected_text = vim.fn.getreg('"')
         selected_text = selected_text:gsub("^%s*(.-)%s*$", "%1")
-        vim.cmd('normal! `av2w')
+        vim.cmd('normal! gv')                     -- reselect same area
         vim.cmd('normal! c[[' .. selected_text .. ']]')
       end, { desc = "Wrap 2 words starting from cursor in [[]] (zettelkasten link)" })
 
