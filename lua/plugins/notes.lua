@@ -390,23 +390,13 @@ Tags: #
 
       -- BACKUP: Simple zettelkasten link creation
       vim.keymap.set('v', '<leader>z[', function()
-        -- Get the selected text
-        local start_pos = vim.fn.getpos("'<")
-        local end_pos = vim.fn.getpos("'>")
-        local lines = vim.api.nvim_buf_get_lines(0, start_pos[2]-1, end_pos[2], false)
-        
-        if #lines == 1 then
-          -- Single line selection
-          local text = lines[1]:sub(start_pos[3], end_pos[3])
-          -- Trim whitespace
-          text = text:match("^%s*(.-)%s*$")
-          -- Replace selection with bracketed text
-          vim.cmd("normal! c[[" .. text .. "]]")
-        else
-          -- Fallback for multiline (shouldn't happen for normal use)
-          vim.cmd("normal! c[[]]")
-          vim.cmd("normal! hp")
-        end
+        -- Much simpler approach: yank selection, then replace with bracketed version
+        vim.cmd('normal! y')
+        local selected_text = vim.fn.getreg('"')
+        -- Trim whitespace
+        selected_text = selected_text:gsub("^%s*(.-)%s*$", "%1")
+        -- Replace selection with bracketed text
+        vim.cmd('normal! c[[' .. selected_text .. ']]')
       end, { desc = "Wrap selection in [[]] (zettelkasten link)" })
 
       -- Quick word-under-cursor zettelkasten link
@@ -416,6 +406,17 @@ Tags: #
           vim.cmd("normal! ciw[[" .. word .. "]]")
         end
       end, { desc = "Wrap word under cursor in [[]] (zettelkasten link)" })
+
+      -- Quick 2-word zettelkasten link (for phrases like "Pharma Eng")
+      vim.keymap.set('n', '<leader>z2', function()
+        -- Mark current position, select and yank 2 words, then replace
+        vim.cmd('normal! ma')
+        vim.cmd('normal! v2wy')
+        local selected_text = vim.fn.getreg('"')
+        selected_text = selected_text:gsub("^%s*(.-)%s*$", "%1")
+        vim.cmd('normal! `av2w')
+        vim.cmd('normal! c[[' .. selected_text .. ']]')
+      end, { desc = "Wrap 2 words starting from cursor in [[]] (zettelkasten link)" })
 
     end,
   },
