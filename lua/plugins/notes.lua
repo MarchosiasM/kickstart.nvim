@@ -165,7 +165,7 @@ Tags: #
         end)
       end, { desc = '[Z]ettelkasten [P]erson/coworker note' })
       
-      -- Daily note with task rollover
+      -- Daily note with automatic task rollover
       map('n', '<leader>zd', function()
         local telekasten = require('telekasten')
         local today = os.date('%Y-%m-%d')
@@ -176,37 +176,38 @@ Tags: #
           -- File exists, just open it
           telekasten.goto_today()
         else
-          -- Ask if user wants task rollover
-          vim.ui.select({'Yes, with task rollover', 'No, clean template'}, {
-            prompt = 'Create today\'s daily note:',
-          }, function(choice)
-            if choice and choice:match('Yes') then
-              -- Use enhanced daily note creation with rollover
-              local rollover = require('daily-task-rollover')
-              rollover.create_daily_with_rollover()
-            else
-              -- Use standard template (original behavior)
-              vim.cmd('edit ' .. daily_path)
-              local template = telekasten.Cfg.template_new_daily
-              if template then
-                local lines = vim.split(template, '\n')
-                local today_formatted = os.date('%Y-%m-%d')
-                for i, line in ipairs(lines) do
-                  lines[i] = line:gsub('{{date}}', today_formatted)
-                  lines[i] = lines[i]:gsub('{{cursor}}', '')
-                end
-                vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-                for i, line in ipairs(lines) do
-                  if line == '' and lines[i-1] and lines[i-1]:match('Notes') then
-                    vim.api.nvim_win_set_cursor(0, {i, 0})
-                    break
-                  end
-                end
-              end
-            end
-          end)
+          -- Automatically use enhanced daily note creation with rollover
+          local rollover = require('daily-task-rollover')
+          rollover.create_daily_with_rollover()
         end
-      end, { desc = '[Z]ettelkasten [D]aily note with optional rollover' })
+      end, { desc = '[Z]ettelkasten [D]aily note with automatic rollover' })
+      
+      -- Clean daily note (no rollover)
+      map('n', '<leader>zdc', function()
+        local telekasten = require('telekasten')
+        local today = os.date('%Y-%m-%d')
+        local daily_path = telekasten.Cfg.dailies .. '/' .. today .. telekasten.Cfg.extension
+        
+        -- Always create clean template, even if file exists
+        vim.cmd('edit ' .. daily_path)
+        local template = telekasten.Cfg.template_new_daily
+        if template then
+          local lines = vim.split(template, '\n')
+          local today_formatted = os.date('%Y-%m-%d')
+          for i, line in ipairs(lines) do
+            lines[i] = line:gsub('{{date}}', today_formatted)
+            lines[i] = lines[i]:gsub('{{cursor}}', '')
+          end
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+          for i, line in ipairs(lines) do
+            if line == '' and lines[i-1] and lines[i-1]:match('Notes') then
+              vim.api.nvim_win_set_cursor(0, {i, 0})
+              break
+            end
+          end
+        end
+        vim.notify("Created clean daily note (no rollover)", vim.log.levels.INFO)
+      end, { desc = '[Z]ettelkasten [D]aily [C]lean note (no rollover)' })
       
       -- Manual task rollover command
       map('n', '<leader>zdr', function()

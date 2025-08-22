@@ -93,9 +93,11 @@ function M.create_daily_with_rollover(date_str)
   
   if prev_date and vim.fn.filereadable(prev_file) == 1 then
     rollover_data = M.parse_daily_note(prev_file)
-    vim.notify("Found " .. #rollover_data.incomplete_tasks .. " incomplete tasks and " .. 
-               #rollover_data.tomorrow_items .. " tomorrow items from " .. prev_date, 
-               vim.log.levels.INFO)
+    -- Only notify if there are items to roll over
+    local total_items = #rollover_data.incomplete_tasks + #rollover_data.tomorrow_items
+    if total_items > 0 then
+      vim.notify("Rolled over " .. total_items .. " items from " .. prev_date, vim.log.levels.INFO)
+    end
   end
   
   -- Create the new daily note content
@@ -147,8 +149,6 @@ function M.create_daily_with_rollover(date_str)
     -- Position cursor in Today's Focus section
     vim.cmd("normal! /Today's Focus")
     vim.cmd("normal! A")
-    
-    vim.notify("Created daily note with task rollover for " .. date_str, vim.log.levels.INFO)
   else
     vim.notify("Failed to create daily note", vim.log.levels.ERROR)
   end
