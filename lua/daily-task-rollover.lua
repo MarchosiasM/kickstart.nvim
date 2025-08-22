@@ -147,8 +147,13 @@ function M.create_daily_with_rollover(date_str)
     vim.cmd("edit " .. today_file)
     
     -- Position cursor in Today's Focus section
-    vim.cmd("normal! /Today's Focus")
-    vim.cmd("normal! A")
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    for i, line in ipairs(lines) do
+      if line:match("## Today's Focus") then
+        vim.api.nvim_win_set_cursor(0, {i + 1, 2}) -- Position after "- " on the focus line
+        break
+      end
+    end
   else
     vim.notify("Failed to create daily note", vim.log.levels.ERROR)
   end
