@@ -1,0 +1,20 @@
+Error detected while processing command line:
+E5108: Error executing lua [string ":lua"]:1: module 'plenary.test_harness' not found:
+	no field package.preload['plenary.test_harness']
+	no file './plenary/test_harness.lua'
+	no file '/opt/homebrew/share/luajit-2.1/plenary/test_harness.lua'
+	no file '/usr/local/share/lua/5.1/plenary/test_harness.lua'
+	no file '/usr/local/share/lua/5.1/plenary/test_harness/init.lua'
+	no file '/opt/homebrew/share/lua/5.1/plenary/test_harness.lua'
+	no file '/opt/homebrew/share/lua/5.1/plenary/test_harness/init.lua'
+	no file './plenary/test_harness.so'
+	no file '/usr/local/lib/lua/5.1/plenary/test_harness.so'
+	no file '/opt/homebrew/lib/lua/5.1/plenary/test_harness.so'
+	no file '/usr/local/lib/lua/5.1/loadall.so'
+	no file './plenary.so'
+	no file '/usr/local/lib/lua/5.1/plenary.so'
+	no file '/opt/homebrew/lib/lua/5.1/plenary.so'
+	no file '/usr/local/lib/lua/5.1/loadall.so'
+stack traceback:
+	[C]: in function 'require'
+	[string ":lua"]:1: in main chunk

@@ -40,7 +40,7 @@ describe('Daily Task Rollover', function()
 
   describe('find_yesterday_note', function()
     it('should find yesterday\'s note file', function()
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       local yesterday_file = rollover.find_yesterday_note()
       
       local yesterday = os.date('%Y-%m-%d', os.time() - 24*60*60)
@@ -62,7 +62,7 @@ describe('Daily Task Rollover', function()
         '## Other section',
       }
       
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       local tasks, tomorrow = rollover.extract_rollover_items(content)
       
       assert.equals(2, #tasks)
@@ -78,7 +78,7 @@ describe('Daily Task Rollover', function()
         '## Other section',
       }
       
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       local tasks, tomorrow = rollover.extract_rollover_items(content)
       
       assert.equals(2, #tomorrow)
@@ -97,7 +97,7 @@ describe('Daily Task Rollover', function()
         'Some notes',
       }
       
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       local tasks, tomorrow = rollover.extract_rollover_items(content)
       
       assert.equals(1, #tasks)
@@ -118,7 +118,7 @@ describe('Daily Task Rollover', function()
         return original_expand(path)
       end
       
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       
       -- This should create today's note
       rollover.create_daily_with_rollover()

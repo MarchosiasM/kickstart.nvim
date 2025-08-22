@@ -268,7 +268,7 @@ local function setup_keymaps()
     if vim.fn.filereadable(daily_path) == 1 then
       telekasten.goto_today()
     else
-      local rollover = require('daily-task-rollover')
+      local rollover = require('zettelkasten.daily-task-rollover')
       rollover.create_daily_with_rollover()
     end
   end, { desc = '[Z]ettelkasten [D]aily note with automatic rollover' })
@@ -279,7 +279,7 @@ local function setup_keymaps()
   map('n', '<leader>zdr', function()
     vim.ui.input({prompt = 'Roll over tasks from date (YYYY-MM-DD): '}, function(date)
       if date and date ~= '' then
-        local rollover = require('daily-task-rollover')
+        local rollover = require('zettelkasten.daily-task-rollover')
         rollover.manual_rollover(date)
       end
     end)
@@ -342,19 +342,19 @@ local function setup_keymaps()
   -- Enhanced Features
   -- ============================
   map('n', '<leader>zb', function()
-    require('better-backlinks').show_backlinks()
+    require('zettelkasten.better-backlinks').show_backlinks()
   end, { desc = '[Z]ettelkasten [B]acklinks (enhanced)' })
   
   map('n', '<leader>zB', function()
-    require('better-backlinks').browse_backlinks()
+    require('zettelkasten.better-backlinks').browse_backlinks()
   end, { desc = '[Z]ettelkasten [B]rowse backlinks (interactive)' })
   
   map('n', '<leader>z#', function()
-    require('better-tags').show_tags()
+    require('zettelkasten.better-tags').show_tags()
   end, { desc = '[Z]ettelkasten show tags (enhanced)' })
   
   map('n', '<leader>zT', function()
-    require('better-tags').search_by_tag()
+    require('zettelkasten.better-tags').search_by_tag()
   end, { desc = '[Z]ettelkasten search by [T]ag' })
   
   -- ============================

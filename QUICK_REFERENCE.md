@@ -35,4 +35,4 @@ sa2iwz      - Surround: two inner words → [[words]]
 
 ---
 
-📚 **Full Guide**: [ZETTELKASTEN_CHEAT_SHEET.md](./ZETTELKASTEN_CHEAT_SHEET.md)
+📚 **Full Guide**: [ZETTELKASTEN_GUIDE.md](./ZETTELKASTEN_GUIDE.md)

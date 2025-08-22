@@ -54,7 +54,7 @@ describe('Better Backlinks', function()
 
   describe('find_backlinks', function()
     it('should find files that link to current note', function()
-      local better_backlinks = require('better-backlinks')
+      local better_backlinks = require('zettelkasten.better-backlinks')
       
       -- Mock the zettelkasten path for testing
       local original_expand = vim.fn.expand
@@ -91,7 +91,7 @@ describe('Better Backlinks', function()
     end)
 
     it('should count multiple references in same file', function()
-      local better_backlinks = require('better-backlinks')
+      local better_backlinks = require('zettelkasten.better-backlinks')
       
       local original_expand = vim.fn.expand
       vim.fn.expand = function(path)
@@ -121,7 +121,7 @@ describe('Better Backlinks', function()
     end)
 
     it('should handle notes with no backlinks', function()
-      local better_backlinks = require('better-backlinks')
+      local better_backlinks = require('zettelkasten.better-backlinks')
       
       local original_expand = vim.fn.expand
       vim.fn.expand = function(path)
@@ -147,7 +147,7 @@ describe('Better Backlinks', function()
 
   describe('show_backlinks', function()
     it('should create a floating window with backlinks', function()
-      local better_backlinks = require('better-backlinks')
+      local better_backlinks = require('zettelkasten.better-backlinks')
       
       -- Mock functions
       local original_expand = vim.fn.expand

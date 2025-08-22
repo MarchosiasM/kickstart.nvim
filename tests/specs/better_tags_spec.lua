@@ -48,7 +48,7 @@ describe('Better Tags', function()
 
   describe('scan_for_tags', function()
     it('should find all tags in test directory', function()
-      local better_tags = require('better-tags')
+      local better_tags = require('zettelkasten.better-tags')
       
       -- Mock the zettelkasten path for testing
       local original_expand = vim.fn.expand
@@ -77,7 +77,7 @@ describe('Better Tags', function()
     end)
 
     it('should track file locations for tags', function()
-      local better_tags = require('better-tags')
+      local better_tags = require('zettelkasten.better-tags')
       
       local original_expand = vim.fn.expand
       vim.fn.expand = function(path)
@@ -105,7 +105,7 @@ describe('Better Tags', function()
 
   describe('show_tags', function()
     it('should create a floating window with tags', function()
-      local better_tags = require('better-tags')
+      local better_tags = require('zettelkasten.better-tags')
       
       -- Mock the expand function
       local original_expand = vim.fn.expand
