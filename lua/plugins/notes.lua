@@ -113,8 +113,43 @@ Tags: #
       local map = vim.keymap.set
       
       -- Note management
-      map('n', '<leader>zf', '<cmd>Telekasten find_notes<CR>', { desc = '[Z]ettelkasten [F]ind notes' })
-      map('n', '<leader>zg', '<cmd>Telekasten search_notes<CR>', { desc = '[Z]ettelkasten [G]rep notes' })
+      map('n', '<leader>zf', function()
+        local ok, builtin = pcall(require, 'telescope.builtin')
+        if not ok then
+          vim.notify('Telescope not available', vim.log.levels.ERROR)
+          return
+        end
+        builtin.find_files({
+          prompt_title = 'Find Zettelkasten Notes',
+          cwd = vim.fn.expand('~/Documents/Notes/zettelkasten'),
+          search_dirs = { vim.fn.expand('~/Documents/Notes/zettelkasten') },
+        })
+      end, { desc = '[Z]ettelkasten [F]ind notes' })
+      map('n', '<leader>zg', function()
+        local ok, builtin = pcall(require, 'telescope.builtin')
+        if not ok then
+          vim.notify('Telescope not available', vim.log.levels.ERROR)
+          return
+        end
+        
+        -- Check if ripgrep is available
+        if vim.fn.executable('rg') == 0 then
+          vim.notify('ripgrep (rg) not found. Install with: brew install ripgrep', vim.log.levels.WARN)
+          -- Fallback to grep_string with current word
+          builtin.grep_string({
+            prompt_title = 'Search Zettelkasten Notes (fallback)',
+            cwd = vim.fn.expand('~/Documents/Notes/zettelkasten'),
+            search_dirs = { vim.fn.expand('~/Documents/Notes/zettelkasten') },
+          })
+          return
+        end
+        
+        builtin.live_grep({
+          prompt_title = 'Search Zettelkasten Notes',
+          cwd = vim.fn.expand('~/Documents/Notes/zettelkasten'),
+          search_dirs = { vim.fn.expand('~/Documents/Notes/zettelkasten') },
+        })
+      end, { desc = '[Z]ettelkasten [G]rep notes' })
       map('n', '<leader>zn', '<cmd>Telekasten new_note<CR>', { desc = '[Z]ettelkasten [N]ew note' })
       map('n', '<leader>zz', '<cmd>Telekasten panel<CR>', { desc = '[Z]ettelkasten panel' })
       map('n', '<leader>zt', '<cmd>Telekasten toggle_todo<CR>', { desc = '[Z]ettelkasten [T]oggle todo' })
