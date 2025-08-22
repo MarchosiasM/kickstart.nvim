@@ -3,8 +3,6 @@
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
-local leet_arg = 'leetcode.nvim'
-
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -105,7 +103,5 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
--- Export leet_arg for use in plugins
-return {
-  leet_arg = leet_arg,
-}
+-- No exports needed currently
+-- return {}

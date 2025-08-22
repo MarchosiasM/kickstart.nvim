@@ -21,20 +21,7 @@ return {
         'nvim-tree/nvim-web-devicons',
         enabled = vim.g.have_nerd_font,
       },
-      {
-        'kawre/leetcode.nvim',
-        cond = function()
-          return not vim.g.vscode
-        end,
-        lazy = function()
-          local config = require('config.options')
-          return config.leet_arg ~= vim.fn.argv(0, -1)
-        end,
-        opts = function()
-          local config = require('config.options')
-          return { arg = config.leet_arg }
-        end,
-      },
+
     },
     config = function()
       if vim.g.vscode then
