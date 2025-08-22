@@ -26,23 +26,6 @@ return {
     opts = {},
   },
 
-  -- Browser integration
-  {
-    'glacambre/firenvim',
-    cond = function()
-      return not vim.g.vscode
-    end, -- Only load when not loaded through vscode
-    build = ':call firenvim#install(0)',
-  },
-
-  -- Code formatting
-  {
-    'sbdchd/neoformat',
-    cond = function()
-      return not vim.g.vscode
-    end, -- Only load when not loaded through vscode
-  },
-
   -- Vim training helper
   {
     'm4xshen/hardtime.nvim',
