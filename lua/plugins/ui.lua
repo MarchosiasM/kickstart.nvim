@@ -86,18 +86,21 @@ return {
       -- - sr)'  - [S]urround [R]eplace [)] [']
       -- - sa2iwz - [S]urround [A]dd [2] [I]nner [W]ords with zettelkasten [[]]
       -- Wrap in pcall to handle any API deprecation issues gracefully
-      local ok, _ = pcall(require('mini.surround').setup, {
-        -- Custom surroundings for zettelkasten
-        custom_surroundings = {
-          -- Use 'z' for zettelkasten links [[]]
-          z = {
-            input = { '%[%[().-()%]%]' },
-            output = { left = '[[', right = ']]' },
+      local ok, surround = pcall(require, 'mini.surround')
+      if ok then
+        surround.setup({
+          -- Custom surroundings for zettelkasten
+          custom_surroundings = {
+            -- Use 'z' for zettelkasten links [[]]
+            z = {
+              input = { '%[%[().-()%]%]' },
+              output = { left = '[[', right = ']]' },
+            },
           },
-        },
-      })
-      if not ok then
-        vim.notify('mini.surround setup failed - consider using nvim-surround instead', vim.log.levels.WARN)
+        })
+        vim.notify('mini.surround loaded with custom zettelkasten surround (z)', vim.log.levels.INFO)
+      else
+        vim.notify('mini.surround setup failed - using backup keymaps', vim.log.levels.WARN)
       end
 
       -- Simple and easy statusline.
