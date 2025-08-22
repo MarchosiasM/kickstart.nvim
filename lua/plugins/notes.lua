@@ -435,7 +435,7 @@ Tags: #
       end, { desc = "Wrap selection in [[]] (zettelkasten link)" })
 
       -- Quick word-under-cursor zettelkasten link
-      vim.keymap.set('n', '<leader>zw', function()
+      vim.keymap.set('n', '<leader>zw1', function()
         local word = vim.fn.expand('<cword>')
         if word and word ~= '' then
           vim.cmd("normal! ciw[[" .. word .. "]]")

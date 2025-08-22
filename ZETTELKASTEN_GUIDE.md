@@ -1,5 +1,7 @@
 # Zettelkasten Guide for Neovim
 
+> **📋 TL;DR**: See [ZETTELKASTEN_CHEAT_SHEET.md](./ZETTELKASTEN_CHEAT_SHEET.md) for the complete, up-to-date keybind reference and workflows!
+
 ## 🧠 What is a Zettelkasten?
 
 A zettelkasten (German for "slip box") is a method of note-taking and knowledge management that focuses on:
