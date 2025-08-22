@@ -91,7 +91,7 @@ return {
         custom_surroundings = {
           -- Use 'z' for zettelkasten links [[]]
           z = {
-            input = { '%[%[.-%]%]' },
+            input = { '%[%[().-()%]%]' },
             output = { left = '[[', right = ']]' },
           },
         },

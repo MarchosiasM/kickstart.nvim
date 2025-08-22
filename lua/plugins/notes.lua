@@ -387,6 +387,13 @@ Tags: #
           end, { buffer = 0, desc = 'Open URL under cursor' })
         end
       })
+
+      -- BACKUP: Simple zettelkasten link creation
+      vim.keymap.set('v', '<leader>z[', function()
+        vim.cmd("normal! c[[]]")
+        vim.cmd("normal! hp")
+      end, { desc = "Wrap selection in [[]] (zettelkasten link)" })
+
     end,
   },
 }
