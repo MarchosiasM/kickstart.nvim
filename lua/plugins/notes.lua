@@ -74,7 +74,7 @@ Tags: #
 #weekly
 ]],
 
-      template_coworker = "# {{title}}\n\n## Background\n- Location: \n- Personal: \n- Previous experience: \n\n## Professional\n- Role: \n- Team: \n- Expertise: \n- Years at company: \n\n## Personal Details\n- Family: \n- Interests: \n- Fun facts: {{cursor}}\n\n## Interactions\n### {{date}} - First meeting\n- \n\n## Related Notes\n- [[Pharmacy Engineering Team]]\n- \n\n## Action Items\n- [ ] \n\n#people #team #pharmacy-eng",
+      template_coworker = "# {{title}}\n\n## Background\n- Location: \n- Personal: \n- Previous experience: \n\n## Professional\n- Role: \n- Team: \n- Expertise: \n- Years at company: \n\n## Personal Details\n- Family: \n- Interests: \n- Fun facts: {{cursor}}\n\n## Interactions\n### {{date}} - First meeting\n- \n\n## Related Notes\n- \n\n## Action Items\n- [ ] \n\n#people #team",
 
       -- Configure how links work
       follow_creates_nonexisting = true, -- Create note when following non-existing link
@@ -156,48 +156,82 @@ Tags: #
       
       -- Coworker note template
       map('n', '<leader>zp', function()
-        vim.ui.input({ prompt = 'Coworker name: ' }, function(name)
-          if name and name ~= '' then
-            local telekasten = require('telekasten')
-            local template = telekasten.Cfg.template_coworker
-            local filepath = telekasten.Cfg.home .. '/' .. name .. telekasten.Cfg.extension
-            
-            -- Check if file already exists
-            if vim.fn.filereadable(filepath) == 1 then
-              -- File exists, just open it
-              vim.cmd('edit ' .. filepath)
-              vim.notify('Opened existing note for ' .. name, vim.log.levels.INFO)
-            elseif template then
-              -- Create new note with template
-              vim.cmd('edit ' .. filepath)
-              
-              -- Substitute template variables
-              local today = os.date('%Y-%m-%d')
-              local lines = vim.split(template, '\n')
-              
-              for i, line in ipairs(lines) do
-                lines[i] = line:gsub('{{title}}', name)
-                lines[i] = lines[i]:gsub('{{date}}', today)
-                lines[i] = lines[i]:gsub('{{cursor}}', '')
-              end
-              
-              -- Insert template content
-              vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-              
-              -- Find cursor position (after "Fun facts:")
-              for i, line in ipairs(lines) do
-                if line:match('Fun facts:') then
-                  vim.api.nvim_win_set_cursor(0, {i, #line})
-                  break
-                end
-              end
-              
-              -- Save the file
-              vim.cmd('write')
-              vim.notify('Created new note for ' .. name, vim.log.levels.INFO)
+        -- Function to extract link name from cursor position
+        local function get_link_under_cursor()
+          local line = vim.api.nvim_get_current_line()
+          local col = vim.api.nvim_win_get_cursor(0)[2]
+          
+          -- Look for [[Link Name]] pattern
+          local start_pos = line:find('%[%[', 1)
+          while start_pos do
+            local end_pos = line:find('%]%]', start_pos)
+            if end_pos and col >= start_pos - 1 and col <= end_pos then
+              -- Cursor is within this link
+              local link_text = line:sub(start_pos + 2, end_pos - 1)
+              return link_text
             end
+            start_pos = line:find('%[%[', end_pos or start_pos + 1)
           end
-        end)
+          
+          return nil
+        end
+        
+        -- Function to create person note
+        local function create_person_note(name)
+          local telekasten = require('telekasten')
+          local template = telekasten.Cfg.template_coworker
+          local filepath = telekasten.Cfg.home .. '/' .. name .. telekasten.Cfg.extension
+          
+          -- Check if file already exists
+          if vim.fn.filereadable(filepath) == 1 then
+            -- File exists, just open it
+            vim.cmd('edit ' .. filepath)
+            vim.notify('Opened existing note for ' .. name, vim.log.levels.INFO)
+          elseif template then
+            -- Create new note with template
+            vim.cmd('edit ' .. filepath)
+            
+            -- Substitute template variables
+            local today = os.date('%Y-%m-%d')
+            local lines = vim.split(template, '\n')
+            
+            for i, line in ipairs(lines) do
+              lines[i] = line:gsub('{{title}}', name)
+              lines[i] = lines[i]:gsub('{{date}}', today)
+              lines[i] = lines[i]:gsub('{{cursor}}', '')
+            end
+            
+            -- Insert template content
+            vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+            
+            -- Find cursor position (after "Fun facts:")
+            for i, line in ipairs(lines) do
+              if line:match('Fun facts:') then
+                vim.api.nvim_win_set_cursor(0, {i, #line})
+                break
+              end
+            end
+            
+            -- Save the file
+            vim.cmd('write')
+            vim.notify('Created new note for ' .. name, vim.log.levels.INFO)
+          end
+        end
+        
+        -- Check if cursor is on a link
+        local link_name = get_link_under_cursor()
+        
+        if link_name then
+          -- Auto-create person note with link name
+          create_person_note(link_name)
+        else
+          -- Fall back to manual input
+          vim.ui.input({ prompt = 'Coworker name: ' }, function(name)
+            if name and name ~= '' then
+              create_person_note(name)
+            end
+          end)
+        end
       end, { desc = '[Z]ettelkasten [P]erson/coworker note' })
       
       -- Daily note with automatic task rollover
